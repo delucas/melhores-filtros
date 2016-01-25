@@ -10,6 +10,8 @@
 
  function fiddle() {
 
+    var BRL_PER_USD = 4.09;
+
     if (!$("body").hasClass("geekviajero")) {
 
       // Calculamos las estadias y cambiamos los formatos de fecha
@@ -19,7 +21,7 @@
 
         var price = parseInt($(item).find(".pc").text().split(" ")[1].replace('.',''));
         var priceCell = $(item).find(".pc");
-        priceCell.html(priceCell.text() + "<br/>USD " + price/4);
+        priceCell.html(priceCell.text() + "<br/>USD " + (price/BRL_PER_USD).toFixed(2));
 
 
         var sale = $($(item).find('.dt')[0]).text().split('/');
@@ -44,8 +46,19 @@
 
       // Rearmamos la tabla para que sea DataTables-friendly
       headers = $(".tbtrechos tr").first();
+
+      var cols = headers.find('th');
+      $(cols[0]).addClass('select-filter');
+      $(cols[1]).addClass('select-filter');
+      $(cols[5]).addClass('select-filter');
+
       headers.parent().parent().prepend("<thead>");
+      headers.parent().parent().prepend("<tfoot>");
       headers.parent().parent().find("thead").append(headers);
+      var footers = headers.clone();
+      footers.children().css('padding', '0.4em');
+      footers.children().text('');
+      headers.parent().parent().find("tfoot").append(footers);
 
       // Agregamos CSS y JS de DataTables, e invocamos
         $("head").append(
@@ -54,7 +67,32 @@
           .attr('type', 'text/css')
           .attr('href', 'https://cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css')
           )
-         $('.tbtrechos').dataTable();
+         $('.tbtrechos').dataTable(
+
+{
+        initComplete: function () {
+            this.api().columns('.select-filter').every( function () {
+                var column = this;
+                var select = $('<select><option value=""></option></select>')
+                    .appendTo( $(column.footer()).empty() )
+                    .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                            $(this).val()
+                        );
+  
+                        column
+                            .search( val ? '^'+val+'$' : '', true, false )
+                            .draw();
+                    } );
+  
+                column.data().unique().sort().each( function ( d, j ) {
+                    select.append( '<option value="'+d+'">'+d+'</option>' )
+                } );
+            } );
+        }
+    } 
+
+          );
 
         // Marcamos el body, para no ejecutar dos veces
       $("body").addClass("geekviajero");

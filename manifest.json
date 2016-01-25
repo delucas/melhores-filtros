@@ -3,7 +3,7 @@
 	"name": "Melhores Filtros para MelhoresDestinos.com.br",
 	"short_name": "melhores-filtros",
 	"description": "Para no tener que buscar entre toneladas de filas en una tabla cada vez que aparecen ofertas :)",
-"version": "0.0.1",
+"version": "0.0.2",
 "author": "Lucas Videla",
 "homepage_url": "https://github.com/delucas/melhores-filtros",
 "icons": {
